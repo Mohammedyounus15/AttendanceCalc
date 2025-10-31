@@ -3,251 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>75% Attendance Calculator</title>
+    <!-- SEO Tags for Google Indexing -->
+    <title>Attendance Calculator | 75% Target</title>
+    <meta name="description" content="Calculate your class attendance, find out how many classes you can miss or need to attend to maintain the 75% threshold.">
+    <meta name="keywords" content="attendance calculator, 75% rule, student attendance, time management">
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Configure Tailwind for custom theme and font -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        'primary': '#4f46e5', // Indigo 600
-                        'success': '#10b981', // Emerald 500
-                        'warning': '#f59e0b', // Amber 500
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- Load Inter font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
     <style>
-        /* Custom Keyframes for the Celebration Blast */
-        @keyframes blast {
-            0% { transform: scale(0.5) rotate(0deg); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: scale(1.2) rotate(360deg); opacity: 0; }
+        /* Custom font and base styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7fafc;
         }
-
-        .celebration-blast {
-            animation: blast 1s ease-out forwards;
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f6e05e; /* Yellow */
+            opacity: 0;
+            border-radius: 50%;
+            animation: confetti-fall 3s ease-in-out infinite;
+        }
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        .gradient-button {
+            background-image: linear-gradient(to right, #4c51bf 0%, #6366f1 51%, #4c51bf 100%);
+            transition: 0.5s;
+            background-size: 200% auto;
+            color: white;
+            box-shadow: 0 4px 15px 0 rgba(49, 196, 190, 0.75);
+        }
+        .gradient-button:hover {
+            background-position: right center; /* change the direction of the change */
+            color: #fff;
         }
     </style>
 </head>
-<body class="bg-gray-50 font-sans min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen p-4 md:p-8 flex items-start justify-center">
 
-    <div class="w-full max-w-lg bg-white shadow-2xl rounded-xl p-6 md:p-10 border border-gray-100">
-        <header class="text-center mb-8">
-            <h1 class="text-3xl font-extrabold text-gray-900 leading-tight">Attendance Tracker</h1>
-            <p class="text-sm text-gray-500 mt-1">Goal: Maintain 75% Attendance</p>
-        </header>
+    <div id="confetti-container" class="fixed inset-0 pointer-events-none z-50 overflow-hidden"></div>
 
-        <!-- Input Form -->
-        <div class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label for="daysAttended" class="block text-sm font-medium text-gray-700 mb-1">Days Attended</label>
-                    <input type="number" id="daysAttended" placeholder="0" min="0" value="0"
-                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary transition duration-150">
-                </div>
-                <div>
-                    <label for="totalDays" class="block text-sm font-medium text-gray-700 mb-1">Total Days Conducted</label>
-                    <input type="number" id="totalDays" placeholder="0" min="0" value="0"
-                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary transition duration-150">
-                </div>
-                <div>
-                    <label for="classesPerDay" class="block text-sm font-medium text-gray-700 mb-1">Classes Per Day</label>
-                    <input type="number" id="classesPerDay" placeholder="1" min="1" value="1"
-                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary transition duration-150">
-                </div>
+    <div class="w-full max-w-2xl bg-white shadow-2xl rounded-xl p-6 md:p-10 border border-gray-100 mt-8">
+        <h1 class="text-4xl font-extrabold text-indigo-700 text-center mb-2">Attendance Target Tracker</h1>
+        <p class="text-center text-gray-500 mb-8">Maintain 75% attendance.</p>
+
+        <!-- Input Section -->
+        <div class="space-y-4">
+            <div>
+                <label for="attended" class="block text-sm font-medium text-gray-700">Classes Attended</label>
+                <input type="number" id="attended" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:border-indigo-500 focus:ring-indigo-500" placeholder="e.g., 50">
             </div>
-
-            <button id="calculateBtn"
-                class="w-full bg-primary text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 transition duration-200 shadow-md shadow-indigo-300/50">
-                Calculate Attendance
-            </button>
-        </div>
-
-        <!-- Results Display Area -->
-        <div id="results" class="mt-8 pt-6 border-t border-gray-200 hidden space-y-4">
-
-            <!-- Current Attendance Card -->
-            <div class="bg-indigo-50 p-4 rounded-lg text-center">
-                <p class="text-lg font-medium text-gray-600">Your Current Attendance</p>
-                <div class="flex items-center justify-center mt-1">
-                    <span id="currentAttendance" class="text-5xl font-bold text-primary">0.00%</span>
-                </div>
+            <div>
+                <label for="total" class="block text-sm font-medium text-gray-700">Total Classes Conducted</label>
+                <input type="number" id="total" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:border-indigo-500 focus:ring-indigo-500" placeholder="e.g., 70">
             </div>
-
-            <!-- Detailed Message Area -->
-            <div id="messageArea" class="p-5 rounded-xl transition-all duration-500 relative overflow-hidden">
-                <!-- Content will be injected here -->
-            </div>
-            
-            <!-- Confetti Overlay for Celebration -->
-            <div id="confetti" class="absolute inset-0 pointer-events-none hidden">
-                <!-- Confetti particles will be generated by JS -->
+            <div>
+                <label for="classesPerDay" class="block text-sm font-medium text-gray-700">Classes Per Day</label>
+                <input type="number" id="classesPerDay" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:border-indigo-500 focus:ring-indigo-500" value="1" min="1">
+                <p class="text-xs text-gray-400 mt-1">Used to convert class totals into days.</p>
             </div>
         </div>
 
-        <!-- Error Message Area -->
-        <div id="errorMsg" class="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg hidden">
-            Please ensure all input values are valid positive numbers, and Total Days Conducted is greater than 0.
+        <button onclick="calculateAttendance()" class="gradient-button w-full mt-8 py-3 rounded-lg text-lg font-semibold shadow-md hover:shadow-lg transition duration-200">
+            Calculate Attendance
+        </button>
+
+        <!-- Result Section -->
+        <div id="result-box" class="mt-8 p-6 bg-gray-50 rounded-lg hidden">
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h2 class="text-2xl font-bold text-gray-800">Your Report</h2>
+                <span id="percentage-display" class="text-3xl font-extrabold text-indigo-600">--%</span>
+            </div>
+
+            <div id="feedback-message" class="text-center p-3 rounded-lg font-semibold"></div>
+
+            <div id="calculation-details" class="mt-4 space-y-3">
+                <!-- Details will be injected here -->
+            </div>
         </div>
 
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const daysAttendedInput = document.getElementById('daysAttended');
-            const totalDaysInput = document.getElementById('totalDays');
-            const classesPerDayInput = document.getElementById('classesPerDay');
-            const calculateBtn = document.getElementById('calculateBtn');
-            const resultsDiv = document.getElementById('results');
-            const currentAttendanceSpan = document.getElementById('currentAttendance');
-            const messageArea = document.getElementById('messageArea');
-            const errorMsgDiv = document.getElementById('errorMsg');
-            const confettiContainer = document.getElementById('confetti');
+        const TARGET_PERCENTAGE = 0.75;
 
-            const REQUIRED_PERCENTAGE = 75;
+        // Utility to generate confetti elements
+        function createConfetti() {
+            const container = document.getElementById('confetti-container');
+            if (!container) return;
 
-            // Simple utility to generate confetti for the celebration
-            function shootConfetti() {
-                // Clear previous confetti
-                confettiContainer.innerHTML = '';
-                confettiContainer.classList.remove('hidden');
-
-                const colors = ['#f87171', '#34d399', '#60a5fa', '#facc15', '#a78bfa']; // Red, green, blue, yellow, purple
-
-                for (let i = 0; i < 50; i++) {
-                    const particle = document.createElement('div');
-                    particle.className = 'absolute celebration-blast';
-                    particle.style.width = '8px';
-                    particle.style.height = '8px';
-                    particle.style.borderRadius = '50%';
-                    particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                    particle.style.left = `${Math.random() * 100}%`;
-                    particle.style.top = `${Math.random() * 100}%`;
-                    particle.style.animationDelay = `${Math.random() * 0.5}s`;
-                    particle.style.transform = `translate(${Math.random() * 400 - 200}%, ${Math.random() * 400 - 200}%) rotate(${Math.random() * 360}deg) scale(0.1)`;
-                    confettiContainer.appendChild(particle);
-                }
-
-                // Hide confetti after animation
-                setTimeout(() => {
-                    confettiContainer.classList.add('hidden');
-                }, 1000);
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.top = `${Math.random() * 100}vh`;
+                confetti.style.backgroundColor = ['#f6e05e', '#fc8181', '#68d391', '#63b3ed'][Math.floor(Math.random() * 4)];
+                confetti.style.animationDelay = `${-Math.random() * 3}s`;
+                confetti.style.animationDuration = `${2 + Math.random() * 2}s`;
+                container.appendChild(confetti);
             }
 
+            // Clean up confetti after 5 seconds
+            setTimeout(() => container.innerHTML = '', 5000);
+        }
 
-            function calculateAttendance() {
-                // 1. Get and validate inputs
-                const daysAttended = parseFloat(daysAttendedInput.value) || 0;
-                const totalDays = parseFloat(totalDaysInput.value) || 0;
-                const classesPerDay = parseFloat(classesPerDayInput.value) || 1;
+        function displayCalculationDetail(primaryValue, classesPerDay, label, colorClass) {
+            const days = Math.ceil(primaryValue / classesPerDay);
+            const classes = primaryValue;
 
-                if (daysAttended < 0 || totalDays <= 0 || classesPerDay <= 0 || daysAttended > totalDays) {
-                    errorMsgDiv.classList.remove('hidden');
-                    resultsDiv.classList.add('hidden');
-                    return;
-                }
+            return `
+                <div class="flex justify-between items-center p-3 rounded-md bg-white border border-gray-200">
+                    <span class="text-base text-gray-600">${label}</span>
+                    <div class="text-right">
+                        <span class="text-3xl font-extrabold ${colorClass}">${days}</span>
+                        <span class="text-sm text-gray-500 block">Day${days !== 1 ? 's' : ''} (${classes} Classes)</span>
+                    </div>
+                </div>
+            `;
+        }
 
-                errorMsgDiv.classList.add('hidden');
-                resultsDiv.classList.remove('hidden');
 
-                // 2. Calculate total classes
-                const classesAttended = daysAttended * classesPerDay;
-                const totalClassesConducted = totalDays * classesPerDay;
+        function calculateAttendance() {
+            const classesAttended = parseFloat(document.getElementById('attended').value);
+            const totalClasses = parseFloat(document.getElementById('total').value);
+            const classesPerDay = parseFloat(document.getElementById('classesPerDay').value) || 1;
+
+            const resultBox = document.getElementById('result-box');
+            const percentageDisplay = document.getElementById('percentage-display');
+            const feedbackMessage = document.getElementById('feedback-message');
+            const detailsContainer = document.getElementById('calculation-details');
+            const confettiContainer = document.getElementById('confetti-container');
+
+            // Clear previous results and output
+            detailsContainer.innerHTML = '';
+            confettiContainer.innerHTML = ''; // Clear confetti
+
+            if (isNaN(classesAttended) || isNaN(totalClasses) || totalClasses <= 0 || classesAttended > totalClasses) {
+                resultBox.classList.remove('hidden');
+                percentageDisplay.textContent = 'N/A';
+                feedbackMessage.textContent = 'Please enter valid attendance numbers.';
+                feedbackMessage.className = 'text-center p-3 rounded-lg font-semibold bg-red-100 text-red-700';
+                detailsContainer.innerHTML = '';
+                return;
+            }
+
+            const currentPercentage = (classesAttended / totalClasses);
+            percentageDisplay.textContent = `${(currentPercentage * 100).toFixed(2)}%`;
+            resultBox.classList.remove('hidden');
+
+            const classesRequiredFor75 = Math.ceil(TARGET_PERCENTAGE * totalClasses);
+
+            let messageHtml = '';
+            let isGood = false;
+
+            if (currentPercentage < TARGET_PERCENTAGE) {
+                // Low Attendance Warning
+                isGood = false;
+                const classesToAttend = classesRequiredFor75 - classesAttended;
                 
-                // Prevent division by zero if somehow totalClassesConducted is 0 (though checked above)
-                if (totalClassesConducted === 0) {
-                    currentAttendanceSpan.textContent = '0.00%';
-                    messageArea.className = 'p-5 rounded-xl transition-all duration-500 bg-gray-100 text-gray-700';
-                    messageArea.innerHTML = '<p class="text-center font-medium">Please enter classes conducted to calculate attendance.</p>';
-                    return;
-                }
+                feedbackMessage.textContent = 'Warning: Attendance is below 75%! You need to attend more.';
+                feedbackMessage.className = 'text-center p-3 rounded-lg font-semibold bg-red-100 text-red-700';
+                
+                messageHtml += displayCalculationDetail(classesToAttend, classesPerDay, 
+                    'Classes to Attend to Reach 75% (Minimum)', 'text-red-600');
+            } else {
+                // Good Attendance Success
+                isGood = true;
+                
+                feedbackMessage.textContent = 'Congratulations! You are above 75% attendance.';
+                feedbackMessage.className = 'text-center p-3 rounded-lg font-semibold bg-green-100 text-green-700';
 
-                // 3. Calculate current percentage
-                const currentPercentage = (classesAttended / totalClassesConducted) * 100;
-
-                // Update UI with current attendance
-                currentAttendanceSpan.textContent = `${currentPercentage.toFixed(2)}%`;
-
-                // 4. Determine status and required action
-                if (currentPercentage < REQUIRED_PERCENTAGE) {
-                    // --- Status: LOW ATTENDANCE ---
-                    
-                    // Calculate classes needed: X such that (C_A + X) / (C_T + X) >= 0.75
-                    // 0.25 * X >= 0.75 * C_T - C_A
-                    // X >= 4 * (0.75 * C_T - C_A)
-                    const requiredClasses = Math.ceil(totalClassesConducted * 0.75);
-                    const classesToMakeUp = requiredClasses - classesAttended;
-
-                    // Days needed is classes to make up divided by classes per day
-                    const daysToMakeUp = Math.ceil(classesToMakeUp / classesPerDay);
-
-
-                    messageArea.className = 'p-5 rounded-xl transition-all duration-500 bg-warning-100 border-2 border-warning-400 relative overflow-hidden';
-                    messageArea.innerHTML = `
-                        <div class="text-center text-warning-800">
-                            <svg class="h-10 w-10 text-warning-500 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.3 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                            <h2 class="text-xl font-bold mb-2">Warning: Low Attendance!</h2>
-                            <p class="mb-3">Your attendance is below the required 75% threshold.</p>
-                            <div class="bg-white p-3 rounded-lg shadow-inner">
-                                <p class="text-lg font-semibold text-warning-700">You need to attend:</p>
-                                <p class="text-2xl font-extrabold text-warning-600 mt-1">${daysToMakeUp} full days</p>
-                                <p class="text-sm mt-1 text-gray-500">(which is ${classesToMakeUp} classes) to reach 75%.</p>
-                            </div>
-                        </div>
-                    `;
-
-                } else {
-                    // --- Status: GOOD ATTENDANCE ---
-
-                    // Calculate max missed classes (Y): Y <= (C_A - 0.75 * C_T) / 0.75
-                    const maxClassesToMiss = Math.floor((classesAttended - (0.75 * totalClassesConducted)) / 0.75);
-
-                    // Days leave is classes to miss divided by classes per day
-                    const maxDaysLeave = Math.floor(maxClassesToMiss / classesPerDay);
-
-                    messageArea.className = 'p-5 rounded-xl transition-all duration-500 bg-success-100 border-2 border-success-400 relative overflow-hidden';
-                    messageArea.innerHTML = `
-                        <div class="text-center text-success-800">
-                            <div class="text-6xl mb-3">🎉</div>
-                            <h2 class="text-2xl font-bold mb-2">Congratulations!</h2>
-                            <p class="mb-3">You are meeting the 75% attendance requirement!</p>
-                            <div class="bg-white p-3 rounded-lg shadow-inner">
-                                <p class="text-lg font-semibold text-success-700">You can still miss:</p>
-                                <p class="text-2xl font-extrabold text-success-600 mt-1">${maxDaysLeave} full days</p>
-                                <p class="text-sm mt-1 text-gray-500">(which is ${maxClassesToMiss} classes) and maintain 75%.</p>
-                            </div>
-                        </div>
-                    `;
-                    shootConfetti(); // Trigger the visual celebration
-                }
+                // The total classes you can miss while keeping 75% *of the current total*
+                const classesYouCanMiss = Math.floor(classesAttended / 0.75) - totalClasses;
+                
+                messageHtml += displayCalculationDetail(classesYouCanMiss, classesPerDay, 
+                    'Classes You Can Miss (Minimum 75% Maintained)', 'text-green-600');
+                
+                createConfetti(); // Trigger confetti for celebration
             }
+            
+            detailsContainer.innerHTML = messageHtml;
+        }
 
-            // Attach event listener to the button
-            calculateBtn.addEventListener('click', calculateAttendance);
+        // Initialize the calculator on load to clear any old values
+        window.onload = function() {
+            document.getElementById('attended').value = '';
+            document.getElementById('total').value = '';
+            document.getElementById('classesPerDay').value = '1';
+        };
 
-            // Optional: Recalculate on Enter key press in any input
-            document.querySelectorAll('input[type="number"]').forEach(input => {
-                input.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        calculateAttendance();
-                    }
-                });
-            });
-
-            // Run an initial calculation on load if values are pre-filled
-            if (daysAttendedInput.value > 0 && totalDaysInput.value > 0) {
-                calculateAttendance();
-            }
-        });
     </script>
 </body>
 </html>
+
+</body>
+</html>
+
